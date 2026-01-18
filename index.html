@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Złote Kruliki 2025 - Gala</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #2d1b69 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 15px;
+    }
+    .container { 
+      width: 100%; 
+      max-width: 1400px; 
+      height: 98vh; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+    }
+    
+    header { 
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      min-height: 100px;
+    }
+    
+    .logo-container {
+      position: absolute;
+      left: 50px;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-img { 
+      height: 120px;
+      filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); 
+      animation: bounce 2s infinite; 
+    }
+
+    .main-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: #ffd700;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .category-box {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 40px;
+      padding: 30px;
+      width: 95%;
+      height: 75vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      position: relative;
+    }
+
+    .text-scene {
+      text-align: center;
+      max-width: 900px;
+      animation: fadeIn 1s ease-out;
+    }
+    .text-scene h2 {
+      color: #ffd700;
+      font-size: 3.5rem;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+    .text-scene p {
+      font-size: 1.6rem;
+      line-height: 1.8;
+      color: #f0f0f0;
+      margin-bottom: 40px;
+    }
+
+    #catName {
+      color: #ffd700;
+      margin: 10px 0 20px 0;
+      font-size: 3rem;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      text-transform: uppercase;
+      text-align: center;
+      display: none;
+    }
+
+    #infoBtn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 215, 0, 0.1);
+      color: #ffd700;
+      border: 2px solid #ffd700;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      font-weight: bold;
+    }
+
+    .nominees-grid {
+      display: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-content: center;
+      gap: 20px;
+      width: 100%;
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 20px 10px;
+    }
+
+    .nominees-grid::-webkit-scrollbar { width: 8px; }
+    .nominees-grid::-webkit-scrollbar-thumb { background: #ffd700; border-radius: 10px; }
+
+    .nominee {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      padding: 15px; 
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 150px;
+    }
+
+    .nominee.video-card { width: 200px !important; padding: 10px; }
+    .nominee.clickable { cursor: pointer; }
+    .nominee.clickable:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .avatar { 
+      width: 100px; 
+      aspect-ratio: 1 / 1;
+      border-radius: 50%; 
+      margin-bottom: 10px; 
+      background-size: cover; 
+      background-position: center; 
+      border: 3px solid #ffd700;
+      transition: 0.6s;
+    }
+
+    .avatar.full-rect {
+      width: 100%; 
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      display: block;
+      object-fit: cover;
+    }
+
+    #previewModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    #previewModal .modal-content { max-width: 90%; max-height: 90%; position: relative; }
+    #previewModal img, #previewModal video {
+      max-width: 100%;
+      max-height: 90vh;
+      border: 3px solid #ffd700;
+      border-radius: 15px;
+      box-shadow: 0 0 50px rgba(0,0,0,1);
+    }
+    #closeModal {
+      position: absolute;
+      top: -45px;
+      right: 0;
+      color: #ffd700;
+      font-size: 40px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .name { font-size: 1.1rem; font-weight: bold; }
+    .video-card .name { font-size: 1.4rem; margin-top: 5px; } 
+
+    .fade-out { opacity: 0 !important; transform: scale(0.5); pointer-events: none; }
+    .removed { display: none !important; }
+    
+    .winner { 
+      transform: scale(1.1) !important; 
+      min-width: 350px; 
+      width: fit-content !important;
+      padding: 30px 60px !important;
+      background: linear-gradient(45deg, #ffd700, #ffed4e) !important; 
+      color: #0f0f23 !important; 
+      z-index: 10;
+    }
+    .winner .avatar.full-rect { width: 350px; margin-bottom: 20px; }
+    .winner .avatar { width: 160px; border-color: #0f0f23; }
+    .winner .avatar.full-rect { width: 100%; }
+    .winner .name { font-size: 1.8rem; }
+
+    .btn {
+      padding: 12px 50px;
+      background: linear-gradient(45deg, #ffd700, #ffed4e);
+      color: #0f0f23;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    #votesTooltip {
+      position: fixed;
+      background: rgba(10, 10, 25, 0.98);
+      border: 2px solid #ffd700;
+      padding: 20px;
+      border-radius: 20px;
+      z-index: 200;
+      display: none;
+      min-width: 250px;
+    }
+
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <div id="previewModal">
+    <div class="modal-content">
+      <span id="closeModal" onclick="closePreview()">×</span>
+      <img id="modalImg" src="" style="display:none;">
+      <video id="modalVideo" controls style="display:none;"></video>
+    </div>
+  </div>
+
+  <div id="votesTooltip"></div>
+
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <img src="ikona.png" alt="Logo" class="logo-img">
+      </div>
+      <h1 class="main-title">ZŁOTE KRULIKI 2025</h1>
+    </header>
+
+    <div class="category-box" id="mainContent">
+      <div id="infoBtn" onclick="showResults(event)">?</div>
+      
+      <div id="introScene" class="text-scene">
+        <h2>Witajcie na Gali Rozdania złotych krulików!</h2>
+        <p>
+          Tydzień temu mieliście możliwość oddać swoje głosy na osoby, gry i wydarzenia, które najbardziej zapadły Wam w pamięć i miały największy wpływ na nasze community. Wasze głosy wykazały, kto wyróżniał się zaangażowaniem, aktywnością i super poczuciem humoru. A dziś nadszedł moment, aby poznać wyniki głosowania i wynagrodzić wszystkich zwycięzców! 🔥
+        </p>
+        <button class="btn" onclick="startGala()">Rozpocznij Galę</button>
+      </div>
+
+      <div id="outroScene" class="text-scene" style="display: none;">
+        <h2>Dziękujemy!</h2>
+        <p>
+          Na koniec chcemy ogromnie podziękować każdemu z Was - za obecność, aktywność na strimkach i za tworzenie komfortowej dla wszystkich atmosfery. Gratulacje dla wszystkich nominowanych i zwycięzców, ale pamiętajcie, że nawet jeśli nie zostaliście uwzględnieni z nicku w tym głosowaniu to i tak dokładacie swoją cegiełkę do wspólnego sukcesu. Dziękujemy za oddane głosy, wspólne chwile w 2025 i mamy nadzieję, że w przyszłym roku spotkamy się tylko i wyłącznie w większym gronie! 
+        </br>Szczególne podziękowania należą się dla  Krzysia, Trawki, Gaby i Psioksa za sklejenie tego wszystkiego do kupy. Do zobaczenia za rok ;)
+        </p>
+      </div>
+
+      <h2 id="catName">Ładowanie...</h2>
+      <div class="nominees-grid" id="nomineeGrid"></div>
+      <button class="btn" id="actionBtn" onclick="logic()" style="display: none;">Dalej</button>
+    </div>
+  </div>
+
+  <script>
+    const galaData = [
+      {
+        name: "Najlepszy Moderator",
+        type: "circle",
+        nominees: [
+          { name: "Damsonn_", votes: 4, img: "awatary/dams.png" },
+          { name: "avxhla", votes: 76, img: "awatary/avx.jpg" },
+          { name: "EWROON", votes: 3, img: "awatary/ewr.png" },
+          { name: "66xavi66", votes: 1, img: "awatary/xvi.png" },
+          { name: "foreeniy_", votes: 1, img: "awatary/for.png" },
+          { name: "mel0neq", votes: 20, img: "awatary/mel.png" },
+          { name: "KEVCIO", votes: 4, img: "awatary/kev.png" }
+        ]
+      },
+      {
+        name: "Najlepszy VIP z Twitch",
+        type: "circle",
+        nominees: [
+          { name: "Boxdel_fanboy", votes: 3, img: "awatary/bxd.png" },
+          { name: "Dandzerous_koala", votes: 6, img: "awatary/dan.png" },
+          { name: "Ketrab9", votes: 24, img: "awatary/ket.png" },
+          { name: "M4recki35", votes: 1, img: "awatary/mar.jpeg" },
+          { name: "Majklel", votes: 5, img: "awatary/maj.png" },
+          { name: "Noa_Krzysiek", votes: 17, img: "awatary/noa.jpeg" },
+          { name: "Skqbany", votes: 1, img: "awatary/skq.png" },
+          { name: "Trawcia35", votes: 26, img: "awatary/tra.png" },
+          { name: "Voncroyy", votes: 7, img: "awatary/von.png" },
+          { name: "Wojo35", votes: 0, img: "awatary/woj.png" }
+        ]
+      },
+      {
+        name: "Najlepszy VIP z Kicka",
+        type: "circle",
+        nominees: [
+          { name: "Feloxa", votes: 10, img: "awatary/fel.png" },
+          { name: "Morelkaav", votes: 12, img: "awatary/mor.png" },
+          { name: "xMgm", votes: 13, img: "awatary/mgm.png" },
+          { name: "Wiewioraxx", votes: 10, img: "awatary/wiew.png" },
+          { name: "Piter", votes: 41, img: "awatary/pit.png" },
+          { name: "xFilioo", votes: 4, img: "awatary/fil.png" }
+        ]
+      },
+      {
+        name: "Największy Debil",
+        type: "circle",
+        nominees: [
+          { name: "Gejvcio__", votes: 40, img: "awatary/kev.png" },
+          { name: "Avandaaa", votes: 24, img: "awatary/ava.png" },
+          { name: "212Maciej", votes: 26, img: "awatary/mac.png" }
+        ]
+      },
+      {
+        name: "Największy Alkus",
+        type: "circle",
+        nominees: [
+          { name: "Avandaaa", votes: 29, img: "awatary/ava.png" },
+          { name: "KoskoPL", votes: 19, img: "awatary/kos.png" },
+          { name: "NOA_Krzysiek", votes: 31, img: "awatary/noa2.jpg" },
+          { name: "kllasko", votes: 11, img: "awatary/kll.jpeg" }
+        ]
+      },
+      {
+        name: "Najlepsze Wydarzenie Streamowe",
+        type: "rect",
+        nominees: [
+          { name: "Stream urodzinowy", votes: 11, img: "wydarzenia/uro.png" },
+          { name: "YFL SMP2", votes: 54, img: "wydarzenia/yflsmp.png" },
+          { name: "KRULIK CUP", votes: 12, img: "wydarzenia/krusmp.png" },
+          { name: "GeoGraf", votes: 11, img: "wydarzenia/geog.png" },
+          { name: "YFL CS:S CUP", votes: 2, img: "wydarzenia/yflcs.png" }
+        ]
+      },
+      {
+        name: "Najlepsze Wydarzenie Community",
+        type: "rect",
+        nominees: [
+          { name: "Meet 2025", votes: 18, img: "wydarzenia/meet.png" },
+          { name: "KRULIK SMP", votes: 20, img: "wydarzenia/krusmp.png" },
+          { name: "KRULIK CUP", votes: 41, img: "wydarzenia/cupcs.png" },
+          { name: "PGA 2025", votes: 11, img: "wydarzenia/pga.png" }
+        ]
+      },
+      { 
+        name: "Największe Copium Streamowe",
+        type: "rect",
+        nominees: [
+          { name: "It Takes Two z Kamilkiem", votes: 40, img: "gra/itt.png" },
+          { name: "Coaching Valo z Szalonym", votes: 14, img: "wydarzenia/szal.png" },
+          { name: "Więcej custom streamów", votes: 20, img: "wydarzenia/cust.png" },
+          { name: "Podcast z goścmi", votes: 16, img: "wydarzenia/podc.png" }
+        ]
+      },
+      {
+        name: "Najlepsza Gra Ekipowa",
+        type: "rect",
+        nominees: [
+          { name: "Codenames", votes: 2, img: "gra/coden.png" },
+          { name: "Exploding Kittens 2", votes: 1, img: "gra/expl.png" },
+          { name: "Brain Show", votes: 9, img: "gra/brain.png" },
+          { name: "PEAK", votes: 21, img: "gra/peak.jpg" },
+          { name: "Gartic Phone", votes: 23, img: "gra/gart.png" },
+          { name: "RV There Yet?", votes: 3, img: "gra/rvt.jpg" },
+          { name: "Among Us", votes: 11, img: "gra/among.jpg" },
+          { name: "REPO", votes: 20, img: "gra/repo.png" }
+        ]
+      },
+      {
+        name: "Najlepsza Gra Solo",
+        type: "rect",
+        nominees: [
+          { name: "Schedule I", votes: 11, img: "gra/sche.png" },
+          { name: "60 Seconds", votes: 7, img: "gra/60s.png" },
+          { name: "Amanda the Adventurer", votes: 13, img: "gra/amand.png" },
+          { name: "Cat Goes Fishing", votes: 6, img: "gra/catg.png" },
+          { name: "My Friend Peppa Pig", votes: 5, img: "gra/pepp.png" },
+          { name: "Kinitopet", votes: 1, img: "gra/kinito.png" },
+          { name: "Geoguessr", votes: 46, img: "gra/geo.png" },
+          { name: "Get Tilted! :)", votes: 1, img: "gra/gett.png" }
+        ]
+      },
+      {
+        name: "Największa Gra z Widzem",
+        type: "rect",
+        nominees: [
+          { name: "Tirki", votes: 43, img: "gra/ets.png" },
+          { name: "Muzyczki", votes: 38, img: "gra/muzy.png" },
+          { name: "Drawy", votes: 9, img: "gra/draw.png" }
+        ]
+      },
+      {
+        name: "Najlepszy Fanart",
+        type: "rect",
+        nominees: [
+          { name: "4Nazumiara", votes: 8, img: "fanart/4naz.png" },
+          { name: "Paulix", votes: 6, img: "fanart/pau.png" },
+          { name: "Rinnie", votes: 5, img: "fanart/rin.png" },
+          { name: "Wirai", votes: 3, img: "fanart/wir.png" },
+          { name: "PoliOla", votes: 38, img: "fanart/pol.png" },
+          { name: "Melqaaa_1", votes: 12, img: "fanart/mel.png" },
+          { name: "Izzon", votes: 3, img: "fanart/izz.png" },
+          { name: "Milena", votes: 15, img: "fanart/mil.png" }
+        ]
+      },
+      {
+        name: "Najlepsze Cytaty",
+        type: "rect",
+        nominees: [
+          { name: "Chmurka i Kamil", votes: 2, img: "cytat/kamilch.png" },
+          { name: "Piotruś(turborex)", votes: 28, img: "cytat/piotus.png" },
+          { name: "Gaba", votes: 20, img: "cytat/gaba1.png" },
+          { name: "Kevcio", votes: 4, img: "cytat/kevc.png" },
+          { name: "Gaba i Czarek", votes: 6, img: "cytat/gabaczaro.png" },
+          { name: "Ketrab", votes: 8, img: "cytat/ketrab.png" },
+          { name: "Gaba v2", votes: 9, img: "cytat/gaba2.png" },
+          { name: "Riverlajon", votes: 5, img: "cytat/river.png" },
+          { name: "Tosia(puszu)", votes: 6, img: "cytat/puszu.png" },
+          { name: "Dena", votes: 2, img: "cytat/dena.png" }
+        ]
+      },
+      {
+        name: "xdd moment",
+        type: "rect",
+        nominees: [
+          { name: "Cleo Jonaaataaan czy Donatan?", votes: 26, img: "klip/xddjon.mp4" },
+          { name: "Pogłaszcz kaczuszkę", votes: 25, img: "klip/xddkaczka.mp4" },
+          { name: "Niezły ten wall na tiktoku (lodzik poradnik)", votes: 17, img: "klip/xddlodzik.mp4" },
+          { name: "Dwóch Podlasiaków vs winda", votes: 23, img: "klip/xddkloce.mp4" }
+        ]
+      },
+      {
+        name: "Timing Roku",
+        type: "rect",
+        nominees: [
+          { name: "O co tutaj chodzi?", votes: 10, img: "klip/timblasz.mp4" },
+          { name: "Będę AWPerem, oh wait", votes: 10, img: "klip/timcs.mp4" },
+          { name: "Wykrakała", votes: 18, img: "klip/timklip.mp4" },
+          { name: "Zaczynam ogarniać movement", votes: 5, img: "klip/timdonica.mp4" },
+          { name: "Świetna orientacja w netherze tftf", votes: 48, img: "klip/timkloce.mp4" }
+        ]
+      },
+      {
+        name: "Angela Moment",
+        type: "rect",
+        nominees: [
+          { name: "35 letni defekt", votes: 37, img: "klip/angkloce.mp4" },
+          { name: "Jak coś ma 4 ściany to jest?", votes: 38, img: "klip/angtroj.mp4" },
+          { name: "Tyralnia kartonowego gostka", votes: 16, img: "klip/angziomeczek.mp4" }
+        ]
+      },
+      {
+        name: "Najgorsze zagranie roku",
+        type: "rect",
+        nominees: [
+          { name: "Popisał się Ronaldo", votes: 28, img: "klip/gorcs1.mp4" },
+          { name: "Cobble czy obsydian?", votes: 47, img: "klip/gorkloce.mp4" },
+          { name: "Czekaj muzykę przyciszę (enemy nie poczekał)", votes: 16, img: "klip/gorcs2.mp4" }
+        ]
+      },
+      {
+        name: "Najlepsze zagranie roku",
+        type: "rect",
+        nominees: [
+          { name: "Angela 3k noway", votes: 17, img: "klip/naj3k.mp4" },
+          { name: "absoluteFALUBAZ", votes: 49, img: "klip/najfalubaz.mp4" },
+          { name: "Szybka decyzja esz", votes: 11, img: "klip/najtajwan.mp4" },
+          { name: "YFL porobione perełką", votes: 14, img: "klip/najkloce.mp4" }
+        ]
+      },
+      {
+        name: "Rage roku",
+        type: "rect",
+        nominees: [
+          { name: "Jak nie wiesz to nie pisz 😡", votes: 47, img: "klip/rageafry.mp4" },
+          { name: "Reveal w pierwszej rundzie", votes: 9, img: "klip/rageamong.mp4" },
+          { name: "Najgorsza moderacja classic", votes: 13, img: "klip/ragemody.mp4" },
+          { name: "Hej, mogę zadać pytanie?", votes: 11, img: "klip/ragepytanie.mp4" },
+          { name: "Ballada na Eurowizję takzrobimy", votes: 11, img: "klip/ragenawidz.mp4" }
+        ]
+      },
+    ];
+
+    let currentCatIndex = 0;
+
+    function startGala() {
+      document.getElementById('introScene').style.display = 'none';
+      document.getElementById('catName').style.display = 'block';
+      document.getElementById('nomineeGrid').style.display = 'flex';
+      document.getElementById('actionBtn').style.display = 'block';
+      document.querySelector('.category-box').style.justifyContent = 'flex-start';
+      loadCategory(0);
+    }
+
+    function endGala() {
+      document.getElementById('catName').style.display = 'none';
+      document.getElementById('nomineeGrid').style.display = 'none';
+      document.getElementById('actionBtn').style.display = 'none';
+      document.getElementById('infoBtn').style.display = 'none';
+      document.querySelector('.category-box').style.justifyContent = 'center';
+      document.getElementById('outroScene').style.display = 'block';
+      confetti({ particleCount: 500, spread: 100, origin: { y: 0.6 } });
+    }
+
+    function openPreview(url) {
+      const modal = document.getElementById('previewModal');
+      const img = document.getElementById('modalImg');
+      const video = document.getElementById('modalVideo');
+      modal.style.display = 'flex';
+      
+      if (url.endsWith('.mp4')) {
+        img.style.display = 'none';
+        video.style.display = 'block';
+        video.src = url;
+        video.play();
+      } else {
+        video.style.display = 'none';
+        video.pause();
+        img.style.display = 'block';
+        img.src = url;
+      }
+    }
+
+    function closePreview() {
+      const modal = document.getElementById('previewModal');
+      const video = document.getElementById('modalVideo');
+      modal.style.display = 'none';
+      video.pause();
+      video.src = "";
+    }
+
+    function loadCategory(index) {
+      if (index >= galaData.length) {
+        endGala();
+        return;
+      }
+      hideTooltip();
+      document.getElementById('infoBtn').style.display = 'none';
+      const cat = galaData[index];
+      document.getElementById('catName').innerText = cat.name;
+      const grid = document.getElementById('nomineeGrid');
+      grid.innerHTML = "";
+
+      const isVideoType = cat.type === "rect";
+      const avatarClass = isVideoType ? "avatar full-rect" : "avatar";
+      const cardClass = isVideoType ? "nominee video-card clickable" : "nominee";
+
+      cat.nominees.forEach((n) => {
+        const clickAction = isVideoType ? `onclick="openPreview('${n.img}')"` : "";
+        
+        let contentHtml = "";
+        if(n.img.endsWith('.mp4')) {
+          contentHtml = `<video class="${avatarClass}" preload="metadata" muted style="border: 3px solid #ffd700; margin-bottom: 10px;">
+                           <source src="${n.img}#t=0.1" type="video/mp4">
+                         </video>`;
+        } else {
+          contentHtml = `<div class="${avatarClass}" style="background-image: url('${n.img}')"></div>`;
+        }
+
+        grid.innerHTML += `
+          <div class="${cardClass}" data-votes="${n.votes}" ${clickAction}>
+            ${contentHtml}
+            <div class="name">${n.name}</div>
+          </div>
+        `;
+      });
+      document.getElementById('actionBtn').innerText = "Dalej";
+      grid.scrollTop = 0;
+    }
+
+    function showResults(event) {
+      event.stopPropagation();
+      const tooltip = document.getElementById('votesTooltip');
+      const cat = galaData[currentCatIndex];
+      const resultsHtml = cat.nominees
+        .sort((a, b) => b.votes - a.votes)
+        .map(n => `
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,215,0,0.1); padding-bottom:4px;">
+            <span style="color:#fff;">${n.name}</span>
+            <span style="color:#ffd700; font-weight:bold;">${n.votes}</span>
+          </div>
+        `).join('');
+      tooltip.innerHTML = resultsHtml;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (event.clientX - 260) + 'px';
+      tooltip.style.top = event.clientY + 'px';
+      setTimeout(() => { window.addEventListener('click', hideTooltip, { once: true }); }, 10);
+    }
+
+    function hideTooltip() { document.getElementById('votesTooltip').style.display = 'none'; }
+
+    function logic() {
+      const btn = document.getElementById('actionBtn');
+      const activeNominees = Array.from(document.querySelectorAll('.nominee:not(.removed):not(.fade-out)'));
+      activeNominees.sort((a, b) => parseInt(a.dataset.votes) - parseInt(b.dataset.votes));
+      const count = activeNominees.length;
+
+      const kill = (targetCount) => {
+        const toRemoveCount = count - targetCount;
+        for(let i = 0; i < toRemoveCount; i++) {
+            const el = activeNominees[i];
+            el.classList.add('fade-out');
+            setTimeout(() => { el.classList.add('removed'); }, 600);
+        }
+      };
+
+      if (count > 5) { kill(5); btn.innerText = "Do Top 3"; }
+      else if (count > 3) { kill(3); btn.innerText = "Do Top 2"; }
+      else if (count > 2) { kill(2); btn.innerText = "Zwycięzca?"; }
+      else if (count === 2) {
+        const loser = activeNominees[0];
+        loser.classList.add('fade-out');
+        setTimeout(() => { 
+            loser.classList.add('removed');
+            const winner = document.querySelector('.nominee:not(.fade-out):not(.removed)');
+            winner.classList.add('winner');
+            confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
+            document.getElementById('infoBtn').style.display = 'flex';
+        }, 600);
+        btn.innerText = "Następna Kategoria";
+      } else {
+        currentCatIndex++;
+        loadCategory(currentCatIndex);
+      }
+    }
+  </script>
+</body>
+</html>
